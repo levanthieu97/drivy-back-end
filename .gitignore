@@ -3,6 +3,7 @@
 out
 bin
 build
+git
 .gradle
 .idea
 .vscode
