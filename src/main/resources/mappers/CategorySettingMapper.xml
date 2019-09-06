@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.CategorySettingMapper">
+    <resultMap id="cateSettingMap" type="com.thieu.tool.models.CategorySetting">
+        <id column="category_setting_id" property="cateSettingId"/>
+        <result column="setting_name" property="settingName"/>
+        <result column="setting_type" property="settingType"/>
+        <result column="is_active" property="isActive"/>
+        <association property="category" javaType="com.thieu.tool.models.Category">
+            <id column="category_id" property="categoryId"/>
+            <result column="category_name" property="categoryName"/>
+            <result column="category_description" property="categoryDescription"/>
+            <result column="category_code" property="categoryCode"/>
+            <result column="category_image" property="categoryImage" jdbcType="BLOB"/>
+            <result column="is_active" property="isActive"/>
+        </association>
+    </resultMap>
+
+    <select id="getCategorySetting" resultMap="cateSettingMap" parameterType="int">
+        select setting_name from category_setting, category ct
+        where ct.category_id = #{categoryId}
+    </select>
+
+    <select id="getNameCateSetting" resultMap="cateSettingMap">
+        select category_setting_id,setting_name, setting_type, is_active from category_setting
+    </select>
+
+    <select id="getCrumsCategory" resultMap="cateSettingMap" parameterType="java.lang.String">
+        select cs.category_setting_id,cs.setting_name,ct.category_id ,ct.category_name
+        from category_setting cs, category ct
+        where cs.category_id = ct.category_id and cs.setting_name = #{settingName}
+    </select>
+
+
+    <resultMap id="cateSettingDetailsMap" type="com.thieu.tool.models.CategorySetting">
+        <id column="category_setting_id" property="cateSettingId"/>
+        <result column="setting_name" property="settingName"/>
+        <result column="setting_type" property="settingType"/>
+        <result column="is_active" property="isActive"/>
+        <collection property="categoryDetails" ofType="com.thieu.tool.models.CategoryDetails">
+            <id column="category_detail_id" property="cateDetailsId"></id>
+            <result column="category_detail_type" property="cateDetailsType"/>
+        </collection>
+    </resultMap>
+
+    <select id="getSettingDetail" resultMap="cateSettingDetailsMap">
+        select cs.category_setting_id, cs.setting_name, cd.category_detail_id, cd.category_detail_type
+        from category_setting cs, category_details cd
+        where cs.category_setting_id = cd.category_setting_id
+    </select>
+
+    
+    <select id="getNameForSettingDetail" resultMap="cateSettingDetailsMap" parameterType="String">
+        select cs.category_setting_id, cs.setting_name, cd.category_detail_id, cd.category_detail_type
+        from category_setting cs, category_details cd
+        where cs.category_setting_id = cd.category_setting_id and setting_name = #{settingName}
+    </select>
+
+</mapper>

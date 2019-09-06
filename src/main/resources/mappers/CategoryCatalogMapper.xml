@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.CategoryCatalogMapper">
+    <resultMap id="categoryCatalogMap" type="com.thieu.tool.models.CategoryCatalog">
+        <result column="category_catalog_id" property="categoryCatalogId"/>
+        <result column="category_detail_id" property="categoryDetailId"/>
+        <result column="catalog_type_id" property="catalogTypeId"/>
+        <result column="category_detail_type" property="detailType"/>
+        <result column="catalog_type_id" property="catalogTypeId"/>
+        <result column="type_name" property="typeName"/>
+        <result column="status" property="status"/>
+        <collection property="catalogs" ofType="com.thieu.tool.models.Catalog">
+            <id column="catalog_id" property="catalogId"/>
+            <result column="catalog_name" property="catalogName"/>
+        </collection>
+    </resultMap>
+
+    <select id="requestCatalog" resultMap="categoryCatalogMap" parameterType="String">
+        select cd.category_detail_id, cd.category_detail_type, ct.type_name,cls.catalog_id ,cls.catalog_name
+        from category_details cd, catalog_type ct, category_catalog cc , catalogs cls
+        where cd.category_detail_id = cc.category_detail_id and ct.catalog_type_id = cc.catalog_type_id
+        and ct.catalog_type_id = cls.catalog_type_id and cd.category_detail_type = #{detailType}
+    </select>
+</mapper>

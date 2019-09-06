@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.PaymentSupplierMapper">
+    <resultMap id="paymentSupplierMap" type="com.thieu.tool.models.PaymentSupplier">
+        <id column="payment_supplier_id" property="paymentSupplierId"/>
+        <result column="payment_id" property="paymentId"/>
+        <result column="supplier_id" property="supplierId"/>
+    </resultMap>
+
+    <insert id="addPaymentSupplier" useGeneratedKeys="true">
+        insert into payment_supplier(payment_id, supplier_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.paymentId},#{item.supplierId})
+        </foreach>
+    </insert>
+</mapper>

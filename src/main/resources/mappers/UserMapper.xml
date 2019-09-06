@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.setup.mappers.UserMapper">
+    <resultMap id="userResultMap" type="com.thieu.setup.models.User">
+        <id column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="fullname" property="fullname"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="city" property="city"/>
+        <result column="create_date" property="createDate"/>
+        <result column="isEnable" property="isEnable"/>
+        <collection property="roles" ofType="com.thieu.setup.models.Role">
+            <id column="role_id" property="roleId"/>
+            <result column="role_name" property="roleName"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="findByUserName" resultMap="userResultMap" parameterType="String">
+        select users.user_id, users.username, users.password, users.fullname ,users.gender ,users.email, users.phone , users.address,users.city,users.create_date , roles.role_name, roles.role_id
+        from users
+            inner join roles on roles.role_id = users.role_id
+        where users.username = #{username}
+    </select>
+
+
+    <insert id="registerForUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+        insert into users(username, password,fullname, email, phone, address,create_date, isEnable ,role_id)
+        values (#{username} , #{password} ,#{fullname} , #{email}, #{phone}, #{address},#{createDate},#{isEnable},#{roleId});
+    </insert>
+
+    <select id="checkUser" resultMap="userResultMap" parameterType="String">
+        select username from users where users.username = #{username}
+    </select>
+</mapper>

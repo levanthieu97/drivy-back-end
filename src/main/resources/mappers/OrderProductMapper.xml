@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.OrderProductMapper">
+    <resultMap id="orderProductMap" type="com.thieu.tool.models.OrderProduct">
+        <id column="order_item_id" property="orderItemId" />
+        <result column="order_id" property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_detail_id" property="productDetailId"/>
+        <result column="supplier_profile_id" property="supplierProfileId"/>
+        <result column="store_name" property="storeName"/>
+        <result column="product_quantity_buy" property="productQuantity"/>
+
+    </resultMap>
+
+    <insert id="addOrderProduct" useGeneratedKeys="true">
+        insert into order_items(order_id,product_id,product_detail_id,supplier_profile_id,store_name,product_quantity_buy)
+        values (#{orderId},#{productId},#{productDetailId},#{supplierProfileId},#{storeName},#{productQuantity})
+    </insert>
+
+    <update id="updateQuantity" parameterType="map">
+        update order_items set product_quantity_buy = #{productQuantity}
+        where order_id = #{orderId} and product_id = #{productId} and supplier_profile_id = #{supplierProfileId}
+        <if test="productDetailId != 0">
+            and product_detail_id = #{productDetailId}
+        </if>
+    </update>
+
+
+    <resultMap id="orderInfoProductMap" type="com.thieu.tool.models.OrderProduct">
+        <id column="order_item_id" property="orderItemId" />
+        <result column="order_id" property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_detail_id" property="productDetailId"/>
+        <result column="supplier_profile_id" property="supplierProfileId"/>
+        <result column="store_name" property="storeName"/>
+        <result column="product_quantity_buy" property="productQuantity"/>
+    </resultMap>
+
+
+    <select id="checkExistProduct" resultMap="orderInfoProductMap" parameterType="map">
+        select order_id,product_id,product_detail_id,supplier_profile_id,product_quantity_buy  from order_items
+        where order_id = #{orderId} and product_id = #{productId} and supplier_profile_id = #{supplierProfileId}
+        <if test="productDetailId != 0">
+            and product_detail_id = #{productDetailId}
+        </if>
+    </select>
+
+
+    <resultMap id="countOrderMap" type="com.thieu.tool.models.OrderProduct">
+        <id column="count" property="countProduct"/>
+        <result column="order_id" property="orderId"/>
+    </resultMap>
+
+    <select id="countProduct" resultMap="countOrderMap">
+        select count(*) 'count' from order_items where order_id = #{orderId}
+    </select>
+    
+    <delete id="removeProductFromMyCart" parameterType="int">
+        delete from order_items where order_item_id = #{orderItemId}
+    </delete>
+
+</mapper>

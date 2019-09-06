@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.ProductsMapper">
+    <resultMap id="productsMap" type="com.thieu.tool.models.Products">
+        <id column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_description" property="productDescription"/>
+        <result column="short_description" property="shortDescription"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_quantity" property="productQuantity"/>
+        <result column="product_image" property="productImage"/>
+        <result column="price" property="price"/>
+        <result column="is_active" property="isActive"/>
+        <result column="create_date" property="createDate"/>
+        <result column="create_by" property="createBy"/>
+        <result column="cost" property="discount"/>
+        <result column="alter_price" property="alterPrice"/>
+        <result column="store_supplier" property="storeSupplier"/>
+        <result column="category_detail_id" property="cateDetailsId"/>
+    </resultMap>
+
+    <select id="checkNameProduct" resultType="int" parameterType="String">
+        select count(*) from products where product_name = #{productNameCompare}
+    </select>
+
+    <select id="getInfoProductByProductName" resultMap="productsMap" parameterType="String">
+        select product_id, product_name, product_description, short_description, product_code, product_quantity, product_image, price, cost, alter_price
+        from products where product_name = #{productName}
+    </select>
+
+    <select id="searchProductsByName" resultMap="productsMap" parameterType="String">
+        <bind name="productName" value="'%' + productName + '%'"/>
+        select product_id,product_name, product_code, product_quantity, product_image, price, alter_price
+        from products where product_name like #{productName}
+    </select>
+
+    <update id="updateQuantityProduct" parameterType="map">
+        update products set product_quantity = #{productQuantity}
+        where product_id = #{productId}
+    </update>
+
+
+    <update id="resetQuantityProduct" parameterType="map">
+        update products set product_quantity = 0
+        where product_id = #{productId}
+    </update>
+
+
+
+    <select id="searchProducts" resultMap="productsMap" parameterType="String">
+        <bind name="productName" value="'%' + productName + '%'"/>
+        select pd.product_id, pd.product_name, pd.product_description, pd.short_description, pd.product_code, pd.product_quantity, pd.product_image,
+        pd.price, pd.cost, pd.alter_price, pd.store_supplier
+        from products pd,supplier_product spd,supplier_profile spf
+        where pd.product_name like #{productName} and pd.product_id = spd.product_id
+        and spd.supplier_profile_id = spf.supplier_profile_id and spf.supplier_profile_id = 5
+    </select>
+
+    <insert id="createProduct" useGeneratedKeys="true" keyProperty="productId" keyColumn="product_id">
+        insert into products( product_name,product_description,short_description,product_code,product_quantity,product_image,price,is_active,category_detail_id,create_date,create_by,alter_price,store_supplier)
+        values( #{productName},#{productDescription},#{shortDescription},#{productCode}
+        ,#{productQuantity},#{productImage, jdbcType=BLOB},#{price},#{isActive},#{categoryDetailId},#{createDate}
+        ,#{createBy},#{alterPrice},#{storeSupplier} )
+    </insert>
+
+
+    <select id="getDataProduct" resultMap="productsMap">
+--         SELECT product_id, product_name, product_code, product_image,cost, price, alter_price
+--           FROM products AS r1 JOIN
+--                (SELECT CEIL(RAND() *
+--                              (SELECT MAX(product_id - 12)
+--                                 FROM products)) AS id)
+--                 AS r2
+--         WHERE r1.product_id >= r2.id
+--         ORDER BY r1.product_id ASC LIMIT 12
+
+        SELECT product_id, product_name, product_code, product_image,cost, price, alter_price
+          FROM products AS r1 JOIN
+               (SELECT CEIL( MIN(product_id) + RAND() * (MAX(product_id-28) - MIN(product_id))) AS id
+                                FROM products )
+                AS r2
+        WHERE r1.product_id > r2.id
+        ORDER BY r1.product_id ASC LIMIT 28
+    </select>
+
+
+    <!-- ############# Product Attribute ###########  -->
+    <resultMap id="productDetailMap" type="com.thieu.tool.models.Products">
+        <id column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_description" property="productDescription"/>
+        <result column="short_description" property="shortDescription"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_quantity" property="productQuantity"/>
+        <result column="product_image" property="productImage" jdbcType="BLOB"/>
+        <result column="price" property="price"/>
+        <result column="is_active" property="isActive"/>
+        <result column="create_date" property="createDate"/>
+        <result column="create_by" property="createBy"/>
+        <result column="cost" property="discount"/>
+        <result column="alter_price" property="alterPrice"/>
+        <result column="store_supplier" property="storeSupplier"/>
+        <association property="categoryDetails" javaType="com.thieu.tool.models.CategoryDetails">
+            <id column="category_detail_id" property="cateDetailsId"/>
+            <result column="category_detail_type" property="cateDetailsType"/>
+            <association property="categorySetting" javaType="com.thieu.tool.models.CategorySetting">
+                <id column="category_setting_id" property="cateSettingId"/>
+                <result column="setting_name" property="settingName"/>
+            </association>
+        </association>
+    </resultMap>
+
+    <select id="requestProduct" resultMap="productDetailMap" parameterType="String">
+        select pd.product_name, pd.product_description, pd.short_description,
+        pd.product_code, pd.product_quantity, pd.product_image,
+        pd.price, pd.cost, pd.alter_price, pd.store_supplier,
+        cd.category_detail_id, cd.category_detail_type
+        from products pd, category_details cd, supplier_product spd, supplier_profile spf
+        where pd.category_detail_id = cd.category_detail_id and pd.product_id = spd.product_id
+        and spd.supplier_profile_id = spf.supplier_profile_id and cd.category_detail_type = #{cateDetailsType}
+        and spf.supplier_profile_id = 5
+    </select>
+
+    <select id="getListProductFromSetting" resultMap="productDetailMap" parameterType="String">
+        select pd.product_name, pd.product_description, pd.short_description,
+            pd.product_code, pd.product_quantity, pd.product_image,
+            pd.price, pd.cost, pd.alter_price, pd.store_supplier,
+            cd.category_detail_id, cd.category_detail_type,
+            cs.category_setting_id, cs.setting_name
+        from products pd, category_details cd, category_setting cs
+        where pd.category_detail_id = cd.category_detail_id and cs.category_setting_id = cd.category_setting_id
+        and cs.setting_name = #{settingName} and pd.is_active= 1
+
+    </select>
+
+    <select id="getListProductCategoryDetail" resultMap="productDetailMap" parameterType="java.lang.String">
+        select pd.product_name, pd.product_description, pd.short_description,
+            pd.product_code, pd.product_quantity, pd.product_image,
+            pd.price, pd.cost, pd.alter_price, pd.store_supplier,
+            cd.category_detail_id, cd.category_detail_type
+        from products pd, category_details cd
+        where pd.category_detail_id = cd.category_detail_id
+        and cd.category_detail_type = #{cateDetailsType}
+    </select>
+
+
+    <!--################  Product Detail   ################-->
+    <resultMap id="multipleProductMap" type="com.thieu.tool.models.Products">
+        <id column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_description" property="productDescription"/>
+        <result column="short_description" property="shortDescription"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_quantity" property="productQuantity"/>
+        <result column="product_image" property="productImage" jdbcType="BLOB"/>
+        <result column="price" property="price"/>
+        <result column="is_active" property="isActive"/>
+        <result column="create_date" property="createDate"/>
+        <result column="create_by" property="createBy"/>
+        <result column="cost" property="discount"/>
+        <result column="alter_price" property="alterPrice"/>
+        <collection property="productDetails" ofType="com.thieu.tool.models.ProductDetail">
+            <id column="product_details_id" property="productDetailId"/>
+            <result column="pd_image" property="pdImage"/>
+            <result column="quantity" property="quantity"/>
+            <result column="SKU" property="SKU"/>
+            <result column="pd_price" property="price"/>
+            <result column="status" property="status"/>
+            <result column="color_name" property="colorName"/>
+            <result column="size_name" property="sizeName"/>
+        </collection>
+    </resultMap>
+
+    <select id="showProductDetail" resultMap="multipleProductMap" parameterType="int">
+
+    </select>
+
+    <select id="getListProductDetail" resultMap="multipleProductMap" parameterType="java.lang.String">
+        select pro.product_id, pro.product_name,pro.short_description, pro.product_description, pro.product_code, pro.product_quantity
+        ,pro.price, pro.cost,pro.alter_price,pds.SKU, pds.quantity,pds.pd_image,pds.product_details_id
+        ,pds.pd_price, pds.status, pc.color_name, ps.size_name
+        from products pro, product_details pds, product_colors pc, product_size ps
+        where pro.product_id = pds.product_id and pds.color_id = pc.color_id
+        and pds.size_id = ps.size_id and pro.is_active = 1 and pro.product_name = #{productName}
+    </select>
+
+
+
+</mapper>

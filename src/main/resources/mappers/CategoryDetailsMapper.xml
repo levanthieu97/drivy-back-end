@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.CategoryDetailsMapper">
+    <resultMap id="categoryDetailsMap" type="com.thieu.tool.models.CategoryDetails">
+        <id column="category_detail_id" property="cateDetailsId"></id>
+        <result column="category_detail_type" property="cateDetailsType"/>
+        <result column="category_detail_description" property="cateDetailsDescription"/>
+        <result column="category_catalog_id" property="categoryCatalogId"/>
+        <association property="catalogTypes" javaType="com.thieu.tool.models.CatalogType">
+            <id column="catalog_type_id" property="catalogTypeId"/>
+            <result column="type_name" property="typeName"/>
+            <collection property="catalogs" ofType="com.thieu.tool.models.Catalog">
+                <id column="catalog_id" property="catalogId"/>
+                <result column="catalog_name" property="catalogName"/>
+            </collection>
+        </association>
+    </resultMap>
+
+    <select id="suggestCatalog" resultMap="categoryDetailsMap" parameterType="java.lang.String">
+        select cd.category_detail_id, cd.category_detail_type, ct.catalog_type_id, ct.type_name, cl.catalog_id, cl.catalog_name
+        from category_details cd, category_catalog cc, catalog_type ct, catalogs cl
+        where cd.category_detail_id = cc.category_detail_id and cc.catalog_type_id = ct.catalog_type_id
+        and ct.catalog_type_id = cl.catalog_type_id and cd.category_detail_type = #{cateDetailsType}
+        and ct.catalog_type_id != 11 and ct.catalog_type_id != 12
+    </select>
+
+    <resultMap id="suggestSupplierMap" type="com.thieu.tool.models.CategoryDetails">
+        <id column="category_detail_id" property="cateDetailsId"></id>
+        <result column="category_detail_type" property="cateDetailsType"/>
+        <collection property="supplierProfiles" ofType="com.thieu.tool.models.SupplierProfile">
+            <id column="supplier_profile_id" property="supplierProfileId"/>
+            <result column="store_name" property="storeName"/>
+            <result column="is_active" property="isActive"/>
+        </collection>
+    </resultMap>
+    <select id="suggestSupplier" resultMap="suggestSupplierMap" parameterType="java.lang.String">
+        select spf.supplier_profile_id, spf.store_name,spf.is_active, cd.category_detail_id, cd.category_detail_type
+        from supplier_profile spf, supplier_product spdt, products pd, category_details cd
+        where spf.supplier_profile_id = spdt.supplier_profile_id and spdt.product_id = pd.product_id and pd.category_detail_id = cd.category_detail_id
+        and cd.category_detail_type = #{cateDetailsType}
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.ProductCatalogMapper">
+    <resultMap id="productCatalogMapper" type="com.thieu.tool.models.ProductCatalog">
+        <id column="product_catalog_id" property="productCatalogId"/>
+        <result column="product_id" property="productId"/>
+        <result column="catalog_id" property="catalogId"/>
+    </resultMap>
+
+
+    <insert id="addProductCatalog" useGeneratedKeys="true">
+        insert into product_catalog(product_id, catalog_id)
+        values
+        <foreach collection="list" item="catalog" separator=",">
+        (#{catalog.productId},#{catalog.catalogId})
+        </foreach>
+    </insert>
+</mapper>

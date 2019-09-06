@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.SupplierProductMapper">
+    <resultMap id="SupplierProductMap" type="com.thieu.tool.models.SupplierProduct">
+        <id column="supplier_product_id" property="supplierProductId"/>
+        <result column="product_id" property="productId"/>
+        <result column="supplier_profile_id" property="supplierProfileId"/>
+        <result column="product_price" property="productPrice"/>
+        <result column="status" property="status"/>
+        <result column="is_active" property="isActive"/>
+        <result column="product_detail_id" property="productDetailId"/>
+    </resultMap>
+
+    <insert id="createSupplierProduct" useGeneratedKeys="true">
+        insert into supplier_product(product_id, supplier_profile_id, status, is_active)
+        values (#{productId}, #{supplierProfileId}, #{status}, #{isActive})
+    </insert>
+
+    <select id="checkExistSupplierBuy" resultMap="SupplierProductMap" parameterType="map">
+        SELECT sp.product_id,sp.supplier_product_id FROM supplier_product sp
+        where sp.product_id = #{productId} and sp.supplier_profile_id = #{supplierProfileId} and sp.product_detail_id = #{productDetailId}
+    </select>
+
+    <insert id="addProductForSupplier" useGeneratedKeys="true">
+        insert into supplier_product(product_id, supplier_profile_id, is_active,product_detail_id)
+        values (#{productId}, #{supplierProfileId}, #{isActive},#{productDetailId})
+    </insert>
+</mapper>

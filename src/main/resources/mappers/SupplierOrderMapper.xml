@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.SupplierOrderMapper">
+    <resultMap id="supplierOrderProductMap" type="com.thieu.tool.models.SupplierOrder">
+        <id column="payment_id" property="paymentId"/>
+        <result column="create_date" property="createDate"/>
+        <result column="fullname" property="nameCustomer"/>
+        <result column="phone" property="phone"/>
+        <result column="type_address" property="typeAddress"/>
+        <result column="type_payment" property="typePayment"/>
+        <result column="status" property="status"/>
+        <result column="address" property="address"/>
+        <result column="city_name" property="cityName"/>
+        <collection property="products" ofType="com.thieu.tool.models.Products">
+            <id column="product_id" property="productId"/>
+            <result column="product_code" property="productCode"/>
+            <result column="product_name" property="productName"/>
+            <result column="product_image" property="productImage"/>
+            <result column="product_quantity_buy" property="productQuantityBuy"/>
+            <result column="price" property="price"/>
+            <result column="alter_price" property="alterPrice"/>
+        </collection>
+    </resultMap>
+
+    <select id="getProductInPayment" resultMap="supplierOrderProductMap" parameterType="int">
+        select payment.payment_id, payment.total_display, payment.create_date,payment.type_payment,payment.status,oi.product_id , oi.product_detail_id, oi.product_quantity_buy,pr.product_code,
+        pr.product_name, us.fullname ,pr.alter_price, ad.phone, ad.type_address, ad.address, city.city_name
+        from supplier_profile supf, payment_supplier ps, payment payment, orders ord, order_items oi, products pr,users us, address ad, city
+        where supf.supplier_profile_id = ps.supplier_id and ps.payment_id = payment.payment_id and payment.order_id = ord.order_id
+        and ord.order_id = oi.order_id and supf.supplier_profile_id = oi.supplier_profile_id and oi.product_id = pr.product_id
+        and  payment.user_id = us.user_id and payment.address_id = ad.address_id and ad.city_id = city.city_id and supf.supplier_profile_id = #{supplierProfileId}
+
+    </select>
+
+    <resultMap id="productOrderMap" type="com.thieu.tool.models.SupplierOrder">
+        <result column="create_date" property="createDate"/>
+        <result column="fullname" property="nameCustomer"/>
+        <collection property="products" ofType="com.thieu.tool.models.Products">
+            <id column="product_id" property="productId"/>
+            <result column="product_code" property="productCode"/>
+            <result column="product_name" property="productName"/>
+            <result column="product_image" property="productImage"/>
+            <result column="product_quantity_buy" property="productQuantityBuy"/>
+            <result column="price" property="price"/>
+            <result column="alter_price" property="alterPrice"/>
+        </collection>
+    </resultMap>
+
+    <select id="listProductOrder" resultMap="productOrderMap" parameterType="int">
+        select payment.create_date,oi.product_id , oi.product_detail_id,
+		oi.product_quantity_buy, pr.product_image,pr.product_name,pr.product_code, pr.price ,pr.alter_price, us.fullname
+        from  supplier_profile supf, payment_supplier ps, payment payment, orders ord, order_items oi, products pr,users us
+        where  payment.order_id = ord.order_id and supf.supplier_profile_id = ps.supplier_id and supf.supplier_profile_id = oi.supplier_profile_id
+        and ps.payment_id = payment.payment_id and ord.order_id = oi.order_id  and oi.product_id = pr.product_id
+        and oi.product_detail_id = 0 and payment.user_id = us.user_id and payment.payment_id = #{paymentId} and supf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+
+
+    <resultMap id="supplierOrderProductDetailMap" type="com.thieu.tool.models.SupplierOrder">
+        <id column="payment_id" property="paymentId"/>
+        <result column="fullname" property="nameCustomer"/>
+        <collection property="productOrderDetails" ofType="com.thieu.tool.models.ProductOrderDetail">
+            <id column="product_id" property="productId"/>
+            <result column="product_detail_id" property="productDetailId"/>
+            <result column="product_name" property="productName"/>
+            <result column="pd_image" property="pdImage"/>
+            <result column="product_quantity_buy" property="productQuantityBuy"/>
+            <result column="price" property="price"/>
+            <result column="pd_price" property="pdPrice"/>
+            <result column="SKU" property="SKU"/>
+            <result column="color_name" property="colorName"/>
+            <result column="size_name" property="sizeName"/>
+        </collection>
+    </resultMap>
+
+    <select id="listProductDetailOrder" resultMap="supplierOrderProductDetailMap" parameterType="int">
+        select payment.create_date, oi.product_id , oi.product_detail_id, oi.product_quantity_buy,
+        pr.product_name, color.color_name, size.size_name,us.fullname,pd.pd_image,pr.price,pd.pd_price,pd.SKU
+        from supplier_profile supf, payment_supplier ps, payment payment, orders ord, order_items oi, products pr
+        , product_details pd, product_colors color, product_size size,users us
+        where supf.supplier_profile_id = ps.supplier_id and ps.payment_id = payment.payment_id and payment.order_id = ord.order_id
+        and ord.order_id = oi.order_id and oi.product_id = pr.product_id and pd.product_details_id = oi.product_detail_id
+        and pd.color_id = color.color_id and pd.size_id = size.size_id and supf.supplier_profile_id = oi.supplier_profile_id
+         and payment.user_id = us.user_id and payment.payment_id = #{paymentId} and supf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+</mapper>

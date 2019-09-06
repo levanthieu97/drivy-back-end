@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.ProductAndCatalogTypeMapper">
+    <resultMap id="productCatalogMap" type="com.thieu.tool.models.ProductAndCatalogType">
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <collection property="catalogTypes" ofType="com.thieu.tool.models.CatalogType">
+            <result column="catalog_type_id" property="catalogTypeId"/>
+            <result column="type_name" property="typeName"/>
+            <result column="catalog_id" property="catalogId"/>
+            <result column="catalog_name" property="catalogName"/>
+        </collection>
+    </resultMap>
+
+    <select id="listCatalogOfProduct" resultMap="productCatalogMap" parameterType="java.lang.String">
+        select pd.product_id, pd.product_name, ctype.catalog_type_id, ctype.type_name, ct.catalog_id, ct.catalog_name
+        from products pd , product_catalog pc, catalogs ct, catalog_type ctype
+        where pd.product_id = pc.product_id and pc.catalog_id = ct.catalog_id and ct.catalog_type_id = ctype.catalog_type_id
+        and pd.product_name = #{productName}
+    </select>
+
+</mapper>

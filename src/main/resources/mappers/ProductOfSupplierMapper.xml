@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.ProductOfSupplierMapper">
+    <resultMap id="productOfSupplierMap" type="com.thieu.tool.models.ProductOfSupplier">
+        <id column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <collection property="supplierProducts" ofType="com.thieu.tool.models.SupplierProduct">
+            <id column="supplier_profile_id" property="supplierProfileId"/>
+            <result column="store_name" property="storeName"/>
+            <result column="product_price" property="productPrice"/>
+        </collection>
+    </resultMap>
+
+    <select id="getSupplierProduct" resultMap="productOfSupplierMap" parameterType="java.lang.String">
+        select pd.product_id, pd.product_name, spd.supplier_profile_id, spf.store_name,spd.product_price, spd.product_detail_id
+        from products pd, supplier_product spd, supplier_profile spf
+        where pd.product_id = spd.product_id and spd.supplier_profile_id = spf.supplier_profile_id
+        and spf.is_active = 1 and pd.product_name = #{productName}
+    </select>
+
+
+    <resultMap id="productDetailOfSupplierMap" type="com.thieu.tool.models.ProductOfSupplier">
+        <id column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <collection property="supplierProducts" ofType="com.thieu.tool.models.SupplierProduct">
+            <id column="supplier_profile_id" property="supplierProfileId"/>
+            <result column="store_name" property="storeName"/>
+            <result column="product_price" property="productPrice"/>
+            <result column="product_detail_id" property="productDetailId"/>
+        </collection>
+    </resultMap>
+
+    <select id="getSupplierProductDetail" resultMap="productOfSupplierMap" parameterType="map">
+        select pd.product_id, pd.product_name, spd.supplier_profile_id, spf.store_name,spd.product_price, spd.product_detail_id
+        from products pd, supplier_product spd, supplier_profile spf
+        where pd.product_id = spd.product_id and spd.supplier_profile_id = spf.supplier_profile_id
+        and spf.is_active = 1 and pd.product_name = #{productName} and spd.product_detail_id = #{productDetailId}
+    </select>
+
+</mapper>

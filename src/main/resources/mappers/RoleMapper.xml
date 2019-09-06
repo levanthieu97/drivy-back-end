@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.setup.mappers.RoleMapper">
+
+    <resultMap id="roleMap" type="com.thieu.setup.models.Role">
+        <id column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+    </resultMap>
+
+    <select id="findRoleByName" resultMap="roleMap" parameterType="String">
+        select role_id,role_name from roles where role_name = #{roleName}
+    </select>
+
+
+    <insert id="getRoleForUser" useGeneratedKeys="true">
+        INSERT INTO user_role (user_id, role_id)
+        values(#{userId},#{roleId})
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.PaymentMapper">
+    <resultMap id="paymentMap" type="com.thieu.tool.models.Payment">
+        <id column="payment_id" property="paymentId"/>
+        <result column="payment_number" property="paymentNumber"/>
+        <result column="type_payment" property="typePayment"/>
+        <result column="create_date" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="total_display" property="totalDisplay"/>
+        <result column="is_active" property="isActive"/>
+        <result column="address_id" property="addressId"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_id" property="orderId"/>
+    </resultMap>
+    
+    <insert id="insertPayment" useGeneratedKeys="true" keyColumn="payment_id" keyProperty="paymentId">
+        insert into payment(type_payment,create_date,status,total_display,is_active
+        ,address_id,user_id,order_id)
+        values(#{typePayment},#{createDate},#{status},#{totalDisplay},#{isActive},#{addressId}
+        ,#{userId},#{orderId})
+    </insert>
+    
+    <select id="getPaymentById" resultMap="paymentMap">
+        SELECT payment_id FROM payment
+        ORDER BY payment_id desc
+        LIMIT 1
+    </select>
+
+    <select id="getInfoPayment" resultMap="paymentMap" parameterType="int">
+        SELECT pay.payment_id, pay.type_payment, pay.create_date  FROM payment pay, users us, orders ord, address adr
+        where pay.user_id = us.user_id and pay.order_id =  ord.order_id and us.user_id = adr.user_id
+        and pay.payment_id = #{paymentId} and pay.address_id = adr.address_id and ord.is_active =1;
+    </select>
+
+    <update id="updateStatus" parameterType="hashmap">
+        update payment
+        set status = #{status}
+        where payment_id = #{paymentId}
+    </update>
+
+
+    <select id="countPayment" parameterType="int" resultType="int">
+        select count(*)
+        from supplier_profile spf, payment_supplier ps , payment payment
+        where spf.supplier_profile_id = ps.supplier_id and ps.payment_id = payment.payment_id
+        and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+</mapper>

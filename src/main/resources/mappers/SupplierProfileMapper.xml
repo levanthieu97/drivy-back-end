@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.SupplierProfileMapper">
+    <resultMap id="supplierProfileMap" type="com.thieu.tool.models.SupplierProfile">
+        <id column="supplier_profile_id" property="supplierProfileId"/>
+        <result column="store_name" property="storeName"/>
+        <result column="business_code" property="businessCode"/>
+        <result column="business_license_image" property="businessLicenseImage"/>
+        <result column="is_license" property="isLicense"/>
+        <result column="store_symbol" property="storeSymbol"/>
+        <result column="tax_code" property="taxCode"/>
+        <result column="create_date" property="createDate"/>
+        <result column="is_active" property="isActive"/>
+    </resultMap>
+
+    <insert id="createSupplier" useGeneratedKeys="true">
+        insert into supplier_profile(store_name,business_code,is_license,tax_code,create_date,is_active,user_id)
+        values (#{storeName},#{businessCode},#{isLicense},#{taxCode},#{createDate},#{isActive},#{userId})
+    </insert>
+
+    <select id="isSupplier" resultMap="supplierProfileMap" parameterType="int">
+        SELECT supplier_profile_id,store_name,business_code,is_license,tax_code FROM supplier_profile
+        where supplier_profile.user_id = #{userId}
+    </select>
+
+    <resultMap id="supplierProfileProductMap" type="com.thieu.tool.models.SupplierProfile">
+        <result column="store_name" property="storeName"/>
+        <result column="user_id" property="userId"/>
+        <collection property="products" ofType="com.thieu.tool.models.Products">
+            <result column="product_id" property="productId"/>
+            <result column="product_name" property="productName"/>
+            <result column="product_code" property="productCode"/>
+            <result column="product_quantity" property="productQuantity"/>
+            <result column="product_image" property="productImage" jdbcType="BLOB"/>
+            <result column="price" property="price"/>
+            <result column="is_active" property="isActive"/>
+            <result column="alter_price" property="alterPrice"/>
+        </collection>
+    </resultMap>
+
+    <select id="listProductActiveOfUser" resultMap="supplierProfileProductMap" parameterType="int">
+        select spf.user_id,spf.store_name,pd.product_id,pd.product_code,pd.product_name,pd.product_quantity,pd.product_image,pd.price,pd.alter_price,pd.is_active
+        from supplier_profile spf, supplier_product spd, products pd
+        where spf.supplier_profile_id = spd.supplier_profile_id and spd.product_id = pd.product_id
+        and pd.is_active = 1 and spd.product_detail_id is null and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+    <select id="listProductNoActive" resultMap="supplierProfileProductMap" parameterType="int">
+        select spf.user_id,spf.store_name,pd.product_id,pd.product_code,pd.product_name,pd.product_quantity,pd.product_image,pd.price,pd.alter_price,pd.is_active
+        from supplier_profile spf, supplier_product spd, products pd
+        where spf.supplier_profile_id = spd.supplier_profile_id and spd.product_id = pd.product_id
+        and pd.is_active <![CDATA[<]]> 1 and spd.product_detail_id is null and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+
+    <resultMap id="supplierProfileProductDetailMap" type="com.thieu.tool.models.SupplierProfile">
+
+        <result column="store_name" property="storeName"/>
+        <result column="user_id" property="userId"/>
+        <collection property="productOrderDetails" ofType="com.thieu.tool.models.ProductOrderDetail">
+            <result column="product_id" property="productId"/>
+            <result column="product_details_id" property="productDetailId"/>
+            <result column="product_name" property="productName"/>
+            <result column="pd_image" property="pdImage"/>
+            <result column="quantity" property="quantity"/>
+            <result column="price" property="price"/>
+            <result column="pd_price" property="pdPrice"/>
+            <result column="SKU" property="SKU"/>
+            <result column="color_name" property="colorName"/>
+            <result column="size_name" property="sizeName"/>
+            <result column="is_active" property="isActive"/>
+        </collection>
+    </resultMap>
+
+    <select id="listProductDetailActive" resultMap="supplierProfileProductDetailMap" parameterType="int">
+        select spf.user_id,spf.store_name,pd.product_id,pd.product_name,pd.price,pd.is_active, detail.pd_image
+        ,detail.product_details_id,detail.SKU,detail.quantity,detail.pd_price,size.size_name,color.color_name
+        from supplier_profile spf, supplier_product spd, products pd, product_details detail, product_size size, product_colors color
+        where spf.supplier_profile_id = spd.supplier_profile_id and spd.product_id = pd.product_id
+        and pd.is_active = 1 and spd.product_detail_id = detail.product_details_id and detail.color_id = color.color_id
+        and detail.size_id = size.size_id and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+    <select id="listProductDetailNoActive" resultMap="supplierProfileProductDetailMap" parameterType="int">
+        select spf.user_id,spf.store_name,pd.product_id,pd.product_name,pd.price,pd.is_active, detail.pd_image
+        ,detail.product_details_id,detail.SKU,detail.quantity,detail.pd_price,size.size_name,color.color_name
+        from supplier_profile spf, supplier_product spd, products pd, product_details detail, product_size size, product_colors color
+        where spf.supplier_profile_id = spd.supplier_profile_id and spd.product_id = pd.product_id
+        and pd.is_active <![CDATA[<]]> 1 and spd.product_detail_id = detail.product_details_id and detail.color_id = color.color_id
+        and detail.size_id = size.size_id and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+
+    <select id="countProduct" parameterType="int" resultType="int">
+        select count(*)
+        from supplier_profile spf, supplier_product spd, products pd
+        where spf.supplier_profile_id = spd.supplier_profile_id and spd.product_id = pd.product_id
+        and spf.supplier_profile_id = #{supplierProfileId}
+    </select>
+
+
+</mapper>

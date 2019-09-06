@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thieu.tool.mappers.CityMapper">
+    <resultMap id="cityMap" type="com.thieu.tool.models.City">
+        <id column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+    </resultMap>
+
+    <select id="getCityName" resultMap="cityMap">
+        select city_id,city_name from city
+    </select>
+</mapper>
